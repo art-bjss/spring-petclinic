@@ -1,6 +1,11 @@
 package org.springframework.samples.petclinic.system;
 
 
+import org.apache.commons.lang3.StringUtils;
+import org.jfairy.Fairy;
+import org.jfairy.producer.person.Person;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.OwnerRepository;
@@ -11,15 +16,28 @@ import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Component
 public class SampleData {
+
+    private static final String DATE_FORMAT_STRING = "YYYY-MM-dd";
+    private static final String VISIT_RABIES_SHOT = "rabies shot";
+    private static final String VISIT_NEUTERED = "neutered";
+    private static final String VISIT_SPAYED = "spayed";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SampleData.class);
 
     @Autowired
     private OwnerRepository ownerRepository;
@@ -29,6 +47,14 @@ public class SampleData {
 
     @Autowired
     private EntityManager entityManager;
+
+    private List<PetType> petTypes = new ArrayList<>();
+
+    @Transactional
+    public void reset() {
+        deleteAll();
+        create();
+    }
 
     @Transactional
     public void deleteAll() {
@@ -56,6 +82,8 @@ public class SampleData {
         PetType bird = savePetType("bird");
         PetType hamster = savePetType("hamster");
 
+        petTypes.addAll(Arrays.asList(cat, dog, lizard, snake, bird, hamster));
+
         Pet leo = createPet("Leo", "2010-09-07", cat);
         Pet basil = createPet("Basil", "2012-08-06", hamster);
         Pet rosy = createPet("Rosy", "2011-04-17", dog);
@@ -81,12 +109,49 @@ public class SampleData {
         saveOwner("David", "Schroeder", "2749 Blackhawk Trail", "Madison", "6085559435", freddy);
         saveOwner("Carlos", "Estaban", "2335 Independence La.", "Waunakee", "6085555487", lucky2, sly);
 
-        saveVisit(samantha, "rabies shot", "2013-01-01");
-        saveVisit(max, "rabies shot", "2013-01-02");
-        saveVisit(max, "neutered", "2013-01-03");
-        saveVisit(jewel, "spayed", "2013-01-04");
+        saveVisit(samantha, VISIT_RABIES_SHOT, "2013-01-01");
+        saveVisit(max, VISIT_RABIES_SHOT, "2013-01-02");
+        saveVisit(max, VISIT_NEUTERED, "2013-01-03");
+        saveVisit(jewel, VISIT_SPAYED, "2013-01-04");
 
     }
+
+    public void createLotsOfData() {
+        Fairy fairy = Fairy.create();
+
+        int count = 10000;
+        IntStream.range(0, count).parallel()
+            .forEach(countSoFar -> createRandomOwnerWithPets(fairy));
+
+        LOGGER.info("Created {} owners", count);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void createRandomOwnerWithPets(Fairy fairy) {
+        List<Pet> pets = IntStream.range(0, fairy.baseProducer().randomBetween(1, 5))
+            .mapToObj(petNumber -> createPet(
+                fairy.person().firstName(),
+                fairy.dateProducer().randomDateInThePast(5).minusYears(3).toString(DATE_FORMAT_STRING),
+                petTypes.get(fairy.baseProducer().randomBetween(0, petTypes.size() - 1)))
+            ).collect(Collectors.toList());
+
+        Person person = fairy.person();
+        saveOwner(
+            person.firstName(),
+            person.lastName(),
+            randomAddress(fairy),
+            person.getAddress().getCity(),
+            String.valueOf(fairy.baseProducer().randomBetween(100000000, 200000000)),
+            pets.toArray(new Pet[]{})
+        );
+
+        pets.forEach(pet -> IntStream.range(1, fairy.baseProducer().randomBetween(1, 3)).forEach(unused2 -> saveVisit(
+            pet,
+            Arrays.asList(VISIT_NEUTERED, VISIT_RABIES_SHOT, VISIT_SPAYED).get(fairy.baseProducer().randomBetween(0, 2)),
+            fairy.dateProducer().randomDateInThePast(3).toString(DATE_FORMAT_STRING)
+        )));
+    }
+
 
     private void saveVisit(Pet pet, String description, String visitDate) {
         Visit visit = new Visit();
@@ -149,9 +214,7 @@ public class SampleData {
         return Date.from(Instant.parse(dateShortIso + "T00:00:00Z"));
     }
 
-    @Transactional
-    public void reset() {
-        deleteAll();
-        create();
+    private String randomAddress(Fairy fairy) {
+        return fairy.baseProducer().randomBetween(1, 100) + " " + StringUtils.capitalize(fairy.textProducer().word(1)) + " Street";
     }
 }

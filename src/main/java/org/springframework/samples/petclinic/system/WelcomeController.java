@@ -24,4 +24,11 @@ class WelcomeController {
         sampleData.reset();
         return "redirect:/";
     }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/createLots")
+    public String createLots() {
+        LoggerFactory.getLogger(getClass()).info("Creating lots of data");
+        sampleData.createLotsOfData();
+        return "redirect:/";
+    }
 }
