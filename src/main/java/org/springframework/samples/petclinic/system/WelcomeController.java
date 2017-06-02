@@ -7,8 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.annotation.PostConstruct;
-
 @Controller
 class WelcomeController {
 
@@ -21,7 +19,6 @@ class WelcomeController {
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/")
-//    @PostConstruct
     public String reset() {
         LoggerFactory.getLogger(getClass()).info("Resetting");
         sampleData.reset();
