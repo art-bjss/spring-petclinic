@@ -23,6 +23,7 @@ import org.springframework.samples.petclinic.owner.PetController;
 import org.springframework.samples.petclinic.owner.PetRepository;
 import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.owner.PetTypeFormatter;
+import org.springframework.samples.petclinic.system.SampleData;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -50,6 +51,10 @@ public class PetControllerTests {
 
     @MockBean
     private OwnerRepository owners;
+
+    @MockBean
+    private SampleData sampleData;
+
 
     @Before
     public void setup() {

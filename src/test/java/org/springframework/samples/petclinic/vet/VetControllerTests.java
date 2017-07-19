@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.samples.petclinic.system.SampleData;
 import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.vet.VetController;
@@ -37,6 +38,9 @@ public class VetControllerTests {
 
     @MockBean
     private VetRepository vets;
+
+    @MockBean
+    private SampleData sampleData;
 
     @Before
     public void setup() {

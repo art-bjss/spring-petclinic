@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Stream;
 
@@ -93,6 +94,8 @@ public class SampleData {
         visit.setDescription(description);
         visit.setPetId(pet.getId());
         visit.setDate(fromString(visitDate));
+
+        pet.addVisit(visit);
 
         visitRepository.save(visit);
     }

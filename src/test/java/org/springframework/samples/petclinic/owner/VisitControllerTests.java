@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetRepository;
 import org.springframework.samples.petclinic.owner.VisitController;
+import org.springframework.samples.petclinic.system.SampleData;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,6 +40,10 @@ public class VisitControllerTests {
 
     @MockBean
     private PetRepository pets;
+
+    @MockBean
+    private SampleData sampleData;
+
 
     @Before
     public void init() {
