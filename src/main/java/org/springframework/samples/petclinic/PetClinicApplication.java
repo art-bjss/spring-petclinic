@@ -40,7 +40,7 @@ public class PetClinicApplication implements ApplicationListener<ContextRefreshe
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        sampleData.create();
+       sampleData.create();
     }
 
 }
