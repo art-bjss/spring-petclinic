@@ -87,7 +87,7 @@ public class ClinicServiceTests {
 
     @Test
     public void shouldFindSingleOwnerWithPet() {
-        Owner owner = this.owners.findById(1);
+        Owner owner = findOwnerByLastName("Franklin");
         assertThat(owner.getLastName()).startsWith("Franklin");
         assertThat(owner.getPets().size()).isEqualTo(1);
         assertThat(owner.getPets().get(0).getType()).isNotNull();
@@ -132,13 +132,6 @@ public class ClinicServiceTests {
 		return this.owners.findByLastName(lastName).iterator().next();
 	}
 
-    @Test
-    public void shouldFindPetWithCorrectId() {
-        Pet pet7 = this.pets.findById(7);
-        assertThat(pet7.getName()).startsWith("Samantha");
-        assertThat(pet7.getOwner().getFirstName()).isEqualTo("Jean");
-
-    }
 
     @Test
     public void shouldFindAllPetTypes() {
@@ -177,14 +170,18 @@ public class ClinicServiceTests {
     @Test
     @Transactional
     public void shouldUpdatePetName() throws Exception {
-        Pet pet7 = this.pets.findById(7);
+    	
+
+        List<Pet> petsCalledMax = getPetByName("Max");
+        
+        Pet pet7 = petsCalledMax.get(0);
         String oldName = pet7.getName();
 
         String newName = oldName + "X";
         pet7.setName(newName);
         this.pets.save(pet7);
 
-        pet7 = this.pets.findById(7);
+        pet7 = this.pets.findById(pet7.getId());
         assertThat(pet7.getName()).isEqualTo(newName);
     }
 
@@ -223,11 +220,22 @@ public class ClinicServiceTests {
 
     @Test
     public void shouldFindVisitsByPetId() throws Exception {
-        Collection<Visit> visits = this.visits.findByPetId(7);
+    	
+        List<Pet> petsCalledMax = getPetByName("Max");
+    	
+    	
+    	Pet pet = petsCalledMax.get(0);
+        Collection<Visit> visits = this.visits.findByPetId(pet.getId());
         assertThat(visits.size()).isEqualTo(2);
         Visit[] visitArr = visits.toArray(new Visit[visits.size()]);
         assertThat(visitArr[0].getDate()).isNotNull();
-        assertThat(visitArr[0].getPetId()).isEqualTo(7);
+        assertThat(visitArr[0].getPetId()).isEqualTo(pet.getId());
     }
+
+	private List<Pet> getPetByName(String name) {
+		return this.pets.findAll().stream()
+        .filter(pet->pet.getName().equals(name))
+        .collect(Collectors.toList());
+	}
 
 }
