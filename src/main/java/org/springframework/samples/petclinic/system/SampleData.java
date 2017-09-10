@@ -11,6 +11,7 @@ import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -18,7 +19,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.stream.Stream;
 
-@Component
+@Service
 public class SampleData {
 
     @Autowired
@@ -38,6 +39,7 @@ public class SampleData {
 
     @Transactional
     public void create() {
+    	
         Specialty radiology = saveSpeciality("radiology");
         Specialty surgery = saveSpeciality("surgery");
         Specialty dentistry = saveSpeciality("dentistry");
@@ -93,6 +95,7 @@ public class SampleData {
         visit.setDescription(description);
         visit.setPetId(pet.getId());
         visit.setDate(fromString(visitDate));
+        pet.addVisit(visit);
 
         visitRepository.save(visit);
     }
